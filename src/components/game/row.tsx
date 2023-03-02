@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { RootStateType, GuessType } from "../../store/reducers"
 import Grid from "./grid"
 
 const validRegex = /^[A-Za-z]$/
@@ -8,7 +10,8 @@ const gridsArr = ["1", "2", "3", "4", "5"]
 const maxGridsLength = gridsArr.length
 
 function Row() {
-  const [currentGuesses, setCurrentGuesses] = useState<string[]>([])
+  const stateGuess = useSelector((state: RootStateType) => state.guesses)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const handleGuess = (e: KeyboardEvent) => {
@@ -18,23 +21,24 @@ function Row() {
       const isEnter = enter.test(currentPressKey)
 
       if (!isValidLetter && !isBackSpace && !isEnter) return
-      if (currentGuesses.length >= maxGridsLength && isValidLetter) return
-      if (currentGuesses.length < 1 && isBackSpace) return
-      if (isBackSpace) return setCurrentGuesses(currentGuesses.slice(0, -1))
+      if (stateGuess.length >= maxGridsLength && isValidLetter) return
+      if (stateGuess.length < 1 && isBackSpace) return
+      if (isBackSpace) return dispatch({ type: "REMOVE_GUESS" })
 
-      setCurrentGuesses((prev) => [...prev, currentPressKey])
+      dispatch({ type: "ADD_GUESS", payload: currentPressKey })
     }
+
     window.addEventListener("keydown", handleGuess)
     return () => {
       window.removeEventListener("keydown", handleGuess)
     }
-  }, [currentGuesses])
+  }, [dispatch, stateGuess])
 
   return (
     <div className="flex flex-column justify-center items-center p-3">
       <div className="grid grid-cols-5 gap-1.5">
         {gridsArr?.map((item, index) => (
-          <Grid key={`${item}-${index + 1}`}>{currentGuesses[index]}</Grid>
+          <Grid key={`${item}-${index + 1}`}>{stateGuess[index]?.letter}</Grid>
         ))}
       </div>
     </div>
