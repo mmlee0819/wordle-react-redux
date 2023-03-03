@@ -1,44 +1,12 @@
-import { AnyAction } from "redux"
-
-export interface GuessType {
-  id: number
-  letter: string
-  status: string
-}
+import { combineReducers } from "redux"
+import guessReducer, { GuessStateType } from "./guessReducer"
+import rowReducer, { RowStateType } from "./rowReducer"
 
 export interface RootStateType {
-  guesses: GuessType[]
+  guessReducer: GuessStateType
+  rowReducer: RowStateType
 }
 
-const initialState = {
-  guesses: [] as GuessType[],
-}
+const rootReducer = combineReducers({ guessReducer, rowReducer })
 
-export default function guessReducer(state = initialState, action: AnyAction) {
-  switch (action.type) {
-    case "ADD_GUESS": {
-      return {
-        guesses: [
-          ...state.guesses,
-          {
-            id: state.guesses.length + 1,
-            letter: action.payload,
-            status: "wrong",
-          },
-        ],
-      }
-    }
-    case "REMOVE_GUESS": {
-      return {
-        guesses: state.guesses.filter(
-          (item) => item.id !== state.guesses.length
-        ),
-      }
-    }
-    case "CHECK_GUESS": {
-      return { guesses: action.payload }
-    }
-    default:
-      return state
-  }
-}
+export default rootReducer

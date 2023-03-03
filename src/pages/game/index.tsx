@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react"
-import Row from "../../components/game/row"
+import Rows from "../../components/game/rows"
 
 export default function Game() {
-  return <Row />
+  return <Rows />
 }
