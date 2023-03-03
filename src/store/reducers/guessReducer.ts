@@ -60,9 +60,22 @@ export default function guessReducer(
                 return { ...item, status: "perfectCorrect" }
               if (currentAnswer.includes(upperCaseLetter))
                 return { ...item, status: "wrongSpot" }
-              return item
+              return { ...item, status: "wrong" }
             }
           ),
+        },
+      }
+    }
+    case "BINGO_GUESS": {
+      return {
+        guesses: {
+          ...state.guesses,
+          [action.payload]: state.guesses[action.payload].map((item) => {
+            return {
+              ...item,
+              status: "perfectCorrect",
+            }
+          }),
         },
       }
     }

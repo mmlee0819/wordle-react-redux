@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "../../store/reducers"
-import { GuessStateType } from "../../store/reducers/guessReducer"
-
 import Grid from "./grid"
 
 const validRegex = /^[A-Za-z]$/
@@ -41,7 +39,8 @@ function Row({ id }: { id: number }) {
         .toUpperCase()
 
       if (guessWordLength === maxGridsLength && isValidLetter) return
-      if (guessWordLength < 1 && isBackSpace) return
+      if ((stateRow.status === "bingo" || guessWordLength < 1) && isBackSpace)
+        return
       if (
         id === maxTries &&
         guessWordLength >= maxGridsLength &&
@@ -49,8 +48,16 @@ function Row({ id }: { id: number }) {
         guessWord !== answer
       )
         return dispatch({ type: "IS_FAIL", payload: "fail" })
-      if (guessWordLength >= maxGridsLength && isEnter && guessWord === answer)
-        return dispatch({ type: "IS_BINGO", payload: "bingo" })
+      if (
+        guessWordLength >= maxGridsLength &&
+        isEnter &&
+        guessWord === answer
+      ) {
+        dispatch({ type: "IS_BINGO", payload: "bingo" })
+        dispatch({ type: "BINGO_GUESS", payload: id })
+        return
+      }
+
       if (guessWordLength >= maxGridsLength && isEnter) {
         dispatch({
           type: "CHECK_GUESS",
@@ -81,7 +88,7 @@ function Row({ id }: { id: number }) {
             {
               id: stateGuess[id].length + 1,
               letter: currentPressKey,
-              status: "unknown",
+              status: "default",
             },
           ],
         },
@@ -91,12 +98,15 @@ function Row({ id }: { id: number }) {
     return () => {
       window.removeEventListener("keydown", handleGuess)
     }
-  }, [dispatch, id, stateGuess, stateRow.currentRow])
+  }, [dispatch, id, stateGuess, stateRow])
 
   return (
     <div className="grid grid-cols-5 gap-1.5">
       {gridsArr?.map((item, index) => (
-        <Grid key={`${item}-${index + 1}`}>
+        <Grid
+          key={`${item}-${index + 1}`}
+          category={stateGuess[id]?.[index]?.status}
+        >
           {stateGuess[id]?.[index]?.letter}
         </Grid>
       ))}
