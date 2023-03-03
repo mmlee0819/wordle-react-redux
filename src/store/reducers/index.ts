@@ -3,16 +3,13 @@ import { AnyAction } from "redux"
 export interface GuessType {
   id: number
   letter: string
-  isCorrectSpot: boolean
-  isPerfectCorrect: boolean
+  status: string
 }
 
 export interface RootStateType {
-  guesses: any
-  state: {
-    guesses: GuessType[]
-  }
+  guesses: GuessType[]
 }
+
 const initialState = {
   guesses: [] as GuessType[],
 }
@@ -26,8 +23,7 @@ export default function guessReducer(state = initialState, action: AnyAction) {
           {
             id: state.guesses.length + 1,
             letter: action.payload,
-            isCorrectSpot: false,
-            isPerfectCorrect: false,
+            status: "wrong",
           },
         ],
       }
@@ -38,6 +34,9 @@ export default function guessReducer(state = initialState, action: AnyAction) {
           (item) => item.id !== state.guesses.length
         ),
       }
+    }
+    case "CHECK_GUESS": {
+      return { guesses: action.payload }
     }
     default:
       return state

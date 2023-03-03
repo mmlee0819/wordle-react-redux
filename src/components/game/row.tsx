@@ -8,8 +8,10 @@ const backSpace = /Backspace/
 const enter = /Enter/
 const gridsArr = ["1", "2", "3", "4", "5"]
 const maxGridsLength = gridsArr.length
+const answer = "SHARK"
 
 function Row() {
+  const [showReminder, setShowReminder] = useState(false)
   const stateGuess = useSelector((state: RootStateType) => state.guesses)
   const dispatch = useDispatch()
 
@@ -21,11 +23,29 @@ function Row() {
       const isEnter = enter.test(currentPressKey)
 
       if (!isValidLetter && !isBackSpace && !isEnter) return
-      if (stateGuess.length >= maxGridsLength && isValidLetter) return
       if (stateGuess.length < 1 && isBackSpace) return
+      if (stateGuess.length >= maxGridsLength && isValidLetter) return
+      if (stateGuess.length >= maxGridsLength && isEnter)
+        return dispatch({
+          type: "CHECK_GUESS",
+          payload: stateGuess.map((item: GuessType, index: number) => {
+            const upperCaseLetter = item.letter.toUpperCase()
+            if (upperCaseLetter === answer[index])
+              return { ...item, status: "perfectCorrect" }
+            if (answer.includes(upperCaseLetter))
+              return { ...item, status: "wrongSpot" }
+            return item
+          }),
+        })
+
       if (isBackSpace) return dispatch({ type: "REMOVE_GUESS" })
 
-      dispatch({ type: "ADD_GUESS", payload: currentPressKey })
+      if (isEnter) return setShowReminder(true)
+
+      dispatch({
+        type: "ADD_GUESS",
+        payload: currentPressKey,
+      })
     }
 
     window.addEventListener("keydown", handleGuess)
