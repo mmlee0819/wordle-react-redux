@@ -6,10 +6,10 @@ const thirdRow = ["Z", "X", "C", "V", "B", "N", "M"]
 
 export default function Keyboard() {
   return (
-    <>
+    <div className="mt-5 mx-3">
       <KeyRow arr={firstRow} isThird={false} />
       <KeyRow arr={secondRow} isThird={false} />
       <KeyRow arr={thirdRow} isThird />
-    </>
+    </div>
   )
 }

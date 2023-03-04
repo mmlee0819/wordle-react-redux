@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { MainKeyButton, SpecificButton } from "./singleButton"
+import { SingleButton } from "./singleButton"
 import backSpaceIcon from "@/assets/backspace.png"
 
 export default function KeyRow({
@@ -10,20 +10,23 @@ export default function KeyRow({
   isThird: boolean
 }) {
   return (
-    <div className="flex justify-center mt-0 mb-2 mx-auto gap-1">
-      {isThird && <SpecificButton>Enter</SpecificButton>}
+    <div className="flex justify-center mt-0 mb-2 mx-auto gap-1.5">
+      {isThird && <SingleButton id="Enter">Enter</SingleButton>}
       {arr.map((item) => (
-        <MainKeyButton key={item}>{item}</MainKeyButton>
+        <SingleButton key={item} id={item}>
+          {item}
+        </SingleButton>
       ))}
       {isThird && (
-        <SpecificButton>
+        <SingleButton id="Backspace">
           <Image
+            id="Backspace"
             src={backSpaceIcon}
             alt="backSpaceIcon"
             width={24}
             height={18}
           />
-        </SpecificButton>
+        </SingleButton>
       )}
     </div>
   )

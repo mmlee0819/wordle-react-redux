@@ -1,15 +1,17 @@
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "@/store/reducers"
 import Grid from "./grid"
+import {
+  validRegex,
+  backSpace,
+  enter,
+  maxGridsLength,
+  maxTries,
+  answer,
+} from "@/utils/data"
 
-const validRegex = /^[A-Za-z]$/
-const backSpace = /Backspace/
-const enter = /Enter/
 const gridsArr = ["1", "2", "3", "4", "5"]
-const maxGridsLength = gridsArr.length
-const maxTries = 6
-const answer = "SHARK"
 
 export default function Row({ id }: { id: number }) {
   const stateRow = useSelector((state: RootStateType) => state.rowReducer)
@@ -88,7 +90,7 @@ export default function Row({ id }: { id: number }) {
             type: "IS_NO_REMINDER",
             payload: "notSure",
           })
-        }, 1000)
+        }, 1200)
 
         return
       }
