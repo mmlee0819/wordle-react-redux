@@ -11,9 +11,7 @@ const maxGridsLength = gridsArr.length
 const maxTries = 6
 const answer = "SHARK"
 
-function Row({ id }: { id: number }) {
-  const [showReminder, setShowReminder] = useState(false)
-
+export default function Row({ id }: { id: number }) {
   const stateRow = useSelector((state: RootStateType) => state.rowReducer)
   const stateGuess = useSelector(
     (state: RootStateType) => state.guessReducer.guesses
@@ -80,7 +78,20 @@ function Row({ id }: { id: number }) {
         })
         return
       }
-      if (isEnter) return setShowReminder(true)
+      if (isEnter) {
+        dispatch({
+          type: "IS_REMINDER",
+          payload: "tooShort",
+        })
+        setTimeout(() => {
+          dispatch({
+            type: "IS_NO_REMINDER",
+            payload: "notSure",
+          })
+        }, 1000)
+
+        return
+      }
       if (isBackSpace)
         return dispatch({
           type: "REMOVE_GUESS",
@@ -109,7 +120,7 @@ function Row({ id }: { id: number }) {
   }, [dispatch, id, stateGuess, stateRow])
 
   return (
-    <div className="grid grid-cols-5 gap-1.5">
+    <div className="relative grid grid-cols-5 gap-1.5">
       {gridsArr?.map((item, index) => (
         <Grid
           key={`${item}-${index + 1}`}
@@ -118,8 +129,11 @@ function Row({ id }: { id: number }) {
           {stateGuess[id]?.[index]?.letter}
         </Grid>
       ))}
+      {stateRow.status === "tooShort" && id === stateRow.currentRow && (
+        <div className="xs:h-8 xs:text-sm absolute right-2/4 translate-x-2/4 flex px-2 justify-center items-center w-3/5 h-10 rounded font-semibold text-base text-black bg-white select-none">
+          Not enough letters
+        </div>
+      )}
     </div>
   )
 }
-
-export default Row

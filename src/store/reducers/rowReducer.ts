@@ -23,8 +23,11 @@ export default function rowReducer(state = initialState, action: AnyAction) {
     case "IS_FAIL": {
       return { ...state, currentRow: 7, status: action.payload }
     }
-    case "Back_TO_FIRST_ROW": {
-      return {}
+    case "IS_REMINDER": {
+      return { ...state, status: action.payload }
+    }
+    case "IS_NO_REMINDER": {
+      return { ...state, status: action.payload }
     }
     default:
       return state
