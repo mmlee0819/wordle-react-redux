@@ -17,6 +17,7 @@ module.exports = {
         wrong: "#3a3a3c",
         wrongSpot: "#b59f3b",
         correct: "#538d4e",
+        keyBg: "#818384",
       },
       fontSize: {
         "2.5xl": ["28px", "40px"],
