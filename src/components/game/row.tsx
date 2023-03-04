@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { RootStateType } from "../../store/reducers"
+import { RootStateType } from "@/store/reducers"
 import Grid from "./grid"
 
 const validRegex = /^[A-Za-z]$/
@@ -39,15 +39,23 @@ function Row({ id }: { id: number }) {
         .toUpperCase()
 
       if (guessWordLength === maxGridsLength && isValidLetter) return
-      if ((stateRow.status === "bingo" || guessWordLength < 1) && isBackSpace)
-        return
+      if (guessWordLength < 1 && isBackSpace) return
       if (
         id === maxTries &&
         guessWordLength >= maxGridsLength &&
         isEnter &&
         guessWord !== answer
-      )
-        return dispatch({ type: "IS_FAIL", payload: "fail" })
+      ) {
+        dispatch({
+          type: "CHECK_GUESS",
+          payload: {
+            rowNumber: id,
+            answer: answer,
+          },
+        })
+        dispatch({ type: "IS_FAIL", payload: "fail" })
+        return
+      }
       if (
         guessWordLength >= maxGridsLength &&
         isEnter &&
