@@ -79,6 +79,9 @@ export default function guessReducer(
         },
       }
     }
+    case "NEXT_WORDLE": {
+      return initialState
+    }
     default:
       return state
   }

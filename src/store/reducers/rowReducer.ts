@@ -29,6 +29,9 @@ export default function rowReducer(state = initialState, action: AnyAction) {
     case "IS_NO_REMINDER": {
       return { ...state, status: action.payload }
     }
+    case "BACK_TO_FIRST_ROW": {
+      return initialState
+    }
     default:
       return state
   }
