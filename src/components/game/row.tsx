@@ -11,6 +11,7 @@ export default function Row({ id }: { id: number }) {
   const stateGuess = useSelector(
     (state: RootStateType) => state.guessReducer.guesses
   )
+  const stateAnswer = useSelector((state: RootStateType) => state.answerReducer)
 
   const dispatch = useDispatch()
 
@@ -18,7 +19,13 @@ export default function Row({ id }: { id: number }) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (id !== stateRow.currentRow) return
       const currentPressKey = e.key
-      handleGuess(currentPressKey, stateRow, stateGuess, dispatch)
+      handleGuess(
+        currentPressKey,
+        stateRow,
+        stateGuess,
+        dispatch,
+        stateAnswer.currentAnswer
+      )
     }
 
     window.addEventListener("keydown", handleKeyDown)

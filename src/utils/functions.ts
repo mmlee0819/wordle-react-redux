@@ -7,7 +7,6 @@ import {
   enter,
   maxGridsLength,
   maxTries,
-  answer,
 } from "@/utils/data"
 
 export const handleGuess = (
@@ -16,7 +15,8 @@ export const handleGuess = (
   stateGuess: {
     [key: number]: GuessGridType[]
   },
-  dispatch: Dispatch
+  dispatch: Dispatch,
+  answer: string
 ) => {
   const isValidLetter = validRegex.test(currentKey)
   const isBackSpace = backSpace.test(currentKey)

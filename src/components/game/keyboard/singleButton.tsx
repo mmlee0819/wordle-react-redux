@@ -19,13 +19,20 @@ export function SingleButton({
   const stateGuess = useSelector(
     (state: RootStateType) => state.guessReducer.guesses
   )
+  const stateAnswer = useSelector((state: RootStateType) => state.answerReducer)
 
   const dispatch = useDispatch()
 
   const handleClick = (e: React.MouseEvent) => {
     const currentClickKey = (e.target as HTMLElement).id
 
-    handleGuess(currentClickKey, stateRow, stateGuess, dispatch)
+    handleGuess(
+      currentClickKey,
+      stateRow,
+      stateGuess,
+      dispatch,
+      stateAnswer.currentAnswer
+    )
   }
 
   return (
