@@ -1,15 +1,8 @@
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "@/store/reducers"
+import { handleGuess } from "@/utils/functions"
 import Grid from "./grid"
-import {
-  validRegex,
-  backSpace,
-  enter,
-  maxGridsLength,
-  maxTries,
-  answer,
-} from "@/utils/data"
 
 const gridsArr = ["1", "2", "3", "4", "5"]
 
@@ -18,106 +11,26 @@ export default function Row({ id }: { id: number }) {
   const stateGuess = useSelector(
     (state: RootStateType) => state.guessReducer.guesses
   )
+  const stateAnswer = useSelector((state: RootStateType) => state.answerReducer)
 
   const dispatch = useDispatch()
 
   useEffect(() => {
-    const handleGuess = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (id !== stateRow.currentRow) return
-
       const currentPressKey = e.key
-      const isValidLetter = validRegex.test(currentPressKey)
-      const isBackSpace = backSpace.test(currentPressKey)
-      const isEnter = enter.test(currentPressKey)
-
-      if (!isValidLetter && !isBackSpace && !isEnter) return
-
-      const guessWordLength = stateGuess[id]?.length
-      const guessWord = stateGuess[id]
-        .map((item) => item.letter)
-        .join("")
-        .toUpperCase()
-
-      if (guessWordLength === maxGridsLength && isValidLetter) return
-      if (guessWordLength < 1 && isBackSpace) return
-      if (
-        id === maxTries &&
-        guessWordLength >= maxGridsLength &&
-        isEnter &&
-        guessWord !== answer
-      ) {
-        dispatch({
-          type: "CHECK_GUESS",
-          payload: {
-            rowNumber: id,
-            answer: answer,
-          },
-        })
-        dispatch({ type: "IS_FAIL", payload: "fail" })
-        return
-      }
-      if (
-        guessWordLength >= maxGridsLength &&
-        isEnter &&
-        guessWord === answer
-      ) {
-        dispatch({ type: "IS_BINGO", payload: "bingo" })
-        dispatch({ type: "BINGO_GUESS", payload: id })
-        return
-      }
-
-      if (guessWordLength >= maxGridsLength && isEnter) {
-        dispatch({
-          type: "CHECK_GUESS",
-          payload: {
-            rowNumber: id,
-            answer: answer,
-          },
-        })
-        dispatch({
-          type: "NEXT_ROW",
-          payload: stateRow.currentRow + 1,
-        })
-        return
-      }
-      if (isEnter) {
-        dispatch({
-          type: "IS_REMINDER",
-          payload: "tooShort",
-        })
-        setTimeout(() => {
-          dispatch({
-            type: "IS_NO_REMINDER",
-            payload: "notSure",
-          })
-        }, 1200)
-
-        return
-      }
-      if (isBackSpace)
-        return dispatch({
-          type: "REMOVE_GUESS",
-          payload: id,
-        })
-
-      dispatch({
-        type: "ADD_GUESS",
-        payload: {
-          rowNumber: id,
-          guess: [
-            ...stateGuess[id],
-            {
-              id: stateGuess[id].length + 1,
-              letter: currentPressKey,
-              status: "default",
-            },
-          ],
-        },
-      })
+      handleGuess(
+        currentPressKey,
+        stateRow,
+        stateGuess,
+        dispatch,
+        stateAnswer.currentAnswer
+      )
     }
-    window.addEventListener("keydown", handleGuess)
+
+    window.addEventListener("keydown", handleKeyDown)
     return () => {
-      window.removeEventListener("keydown", handleGuess)
+      window.removeEventListener("keydown", handleKeyDown)
     }
   }, [dispatch, id, stateGuess, stateRow])
 

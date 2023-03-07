@@ -3,4 +3,3 @@ export const backSpace = /Backspace/
 export const enter = /Enter/
 export const maxGridsLength = 5
 export const maxTries = 6
-export const answer = "SHARK"
