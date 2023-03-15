@@ -27,7 +27,7 @@ export default function Form() {
   const [showPassword, setShowPassword] = useState(false)
   const dispatch = useDispatch()
 
-  const createUser = async (email: string, uid: string) => {
+  const createUser = async (email: string, uid: string, source: string) => {
     const generateAvatar = await axios.get(
       `https://avatars.dicebear.com/api/bottts/${uid}.1.svg`
     )
@@ -35,6 +35,7 @@ export default function Form() {
     const indexOfTarget = email?.indexOf(target)
     const name = email?.slice(0, indexOfTarget)
     await setDoc(doc(db, "users", email), {
+      account: source,
       email,
       displayName: name,
       photoURL: bottsAvatar,
@@ -61,11 +62,11 @@ export default function Form() {
     const docRef = doc(db, "users", emailRef.current.value)
     try {
       const docSnap = await getDoc(docRef)
-      if (docSnap.exists()) {
-        setUserStatus("shouldSignIn")
-      } else {
-        setUserStatus("shouldSignUp")
-      }
+      if (!docSnap.exists()) return setUserStatus("shouldSignUp")
+      if (docSnap.exists() && docSnap.data().account === "firebase")
+        return setUserStatus("shouldSignIn")
+      if (docSnap.exists() && docSnap.data().account === "google")
+        return setUserStatus("shouldSignInWithGoogle")
     } catch (err) {
       console.log(err)
     }
@@ -77,7 +78,7 @@ export default function Form() {
       if (!result) return
       const { email, uid } = result.user
       if (typeof email !== "string") return
-      await createUser(email, uid)
+      await createUser(email, uid, "google")
     } catch (error) {
       if (error instanceof Error) {
         const errorMessage = error.message
@@ -102,7 +103,7 @@ export default function Form() {
       )
       const { email, uid } = userCredential.user
       if (typeof email !== "string") return
-      await createUser(email, uid)
+      await createUser(email, uid, "firebase")
     } catch (error) {
       if (error instanceof Error) {
         const errorMessage = error.message
@@ -120,7 +121,7 @@ export default function Form() {
       return
     try {
       e.preventDefault()
-      const userCredential = await signInWithEmailAndPassword(
+      await signInWithEmailAndPassword(
         auth,
         emailRef.current.value,
         passwordRef.current.value
@@ -178,7 +179,7 @@ export default function Form() {
           <ButtonOnInput handleClick={handleClickEdit}>Edit</ButtonOnInput>
         )}
       </div>
-      {userStatus !== "" && (
+      {(userStatus === "shouldSignIn" || userStatus === "shouldSignUp") && (
         <div className="relative flex flex-col items-start mt-4 w-full gap-1">
           <label htmlFor="password" className="font-semibold">
             Password
@@ -196,12 +197,23 @@ export default function Form() {
           </ButtonOnInput>
         </div>
       )}
-      {userStatus === "" && (
+      {(userStatus === "" || userStatus === "shouldSignInWithGoogle") && (
         <>
-          <Button onClick={handleCheckEmail} styles={continueButtonStyles}>
-            Continue
-          </Button>
-          <Partition />
+          {userStatus === "" && (
+            <>
+              <Button onClick={handleCheckEmail} styles={continueButtonStyles}>
+                Continue
+              </Button>
+              <Partition />
+            </>
+          )}
+          {userStatus === "shouldSignInWithGoogle" && (
+            <div className="mx-auto my-5 text-center font-semibold">
+              You already have a google account.
+              <br />
+              Please click the button below.
+            </div>
+          )}
           <Button onClick={handleClickGoogle} styles={googleButtonStyles}>
             <Image
               src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
