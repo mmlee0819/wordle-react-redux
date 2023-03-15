@@ -1,6 +1,9 @@
 import { useState, useRef } from "react"
 import { doc, getDoc, setDoc } from "firebase/firestore"
-import { createUserWithEmailAndPassword } from "firebase/auth"
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth"
 import { db, auth } from "../../../../lib/firebase"
 import Button from "../button"
 import axios from "axios"
@@ -64,7 +67,38 @@ export default function Form() {
       }
     }
   }
-  const signIn = async (e: React.MouseEvent) => {}
+  const signIn = async (e: React.MouseEvent) => {
+    if (
+      !emailRef.current ||
+      !passwordRef.current ||
+      emailRef.current.value.trim() === "" ||
+      passwordRef.current.value.trim() === ""
+    )
+      return
+    try {
+      e.preventDefault()
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        emailRef.current.value,
+        passwordRef.current.value
+      )
+      const user = userCredential.user
+      console.log({ user })
+      const docRef = doc(db, "users", emailRef.current.value)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data())
+      } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!")
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        const errorMessage = error.message
+        console.log(errorMessage)
+      }
+    }
+  }
   return (
     <form className="flex flex-col items-start w-full">
       <h1 className="flex self-center mb-4 text-2.5xl">
