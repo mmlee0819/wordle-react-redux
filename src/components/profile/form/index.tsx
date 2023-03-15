@@ -11,6 +11,7 @@ import {
 import { db, auth, provider } from "lib/firebase"
 import Button from "../button"
 import Partition from "./partition"
+import ButtonOnInput from "./buttonOnInput"
 
 const continueButtonStyles =
   "mt-4 w-full h-12 text-black bg-white rounded font-semibold select-none"
@@ -23,6 +24,7 @@ export default function Form() {
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
   const [userStatus, setUserStatus] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const dispatch = useDispatch()
 
   const createUser = async (email: string, uid: string) => {
@@ -148,6 +150,10 @@ export default function Form() {
       }
     }
   }
+
+  const handleClickEdit = () => setUserStatus("")
+  const handleClickShow = () => setShowPassword((prev) => !prev)
+
   return (
     <form className="flex flex-col items-start w-full">
       <h1 className="flex self-center mb-4 text-2.5xl">
@@ -155,33 +161,39 @@ export default function Form() {
         {userStatus === "shouldSignIn" && "Log in to your account"}
         {userStatus === "shouldSignUp" && "Create your free account"}
       </h1>
-      <div className="flex flex-col items-start mt-4 w-full gap-1">
+      <div className="relative flex flex-col items-start mt-4 w-full gap-1">
         <label htmlFor="email" className="font-semibold">
           Email Address
         </label>
         <input
           id="email"
-          className="pl-2 w-full h-12 bg-black border border-white rounded"
+          className="pl-2 w-full h-12 bg-black border border-white rounded focus:outline-none"
           type="email"
           maxLength={64}
           ref={emailRef}
           autoFocus={userStatus === "" ? true : false}
           disabled={userStatus === "" ? false : true}
         />
+        {userStatus !== "" && (
+          <ButtonOnInput handleClick={handleClickEdit}>Edit</ButtonOnInput>
+        )}
       </div>
       {userStatus !== "" && (
-        <div className="flex flex-col items-start mt-4 w-full gap-1">
+        <div className="relative flex flex-col items-start mt-4 w-full gap-1">
           <label htmlFor="password" className="font-semibold">
             Password
           </label>
           <input
             id="password"
-            className="pl-2 w-full h-12 bg-black border border-white rounded"
-            type="text"
+            className="pl-2 w-full h-12 bg-black border border-white rounded focus:outline-none"
+            type={showPassword ? "text" : "password"}
             maxLength={64}
             ref={passwordRef}
             autoFocus
           />
+          <ButtonOnInput handleClick={handleClickShow}>
+            {showPassword ? "Hide" : "Show"}
+          </ButtonOnInput>
         </div>
       )}
       {userStatus === "" && (
