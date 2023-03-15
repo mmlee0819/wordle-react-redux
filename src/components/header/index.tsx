@@ -1,9 +1,10 @@
 import { useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { doc, getDoc } from "firebase/firestore"
-import { onAuthStateChanged } from "firebase/auth"
+import { useDispatch } from "react-redux"
 import Image from "next/image"
 import Link from "next/link"
+import { doc, getDoc } from "firebase/firestore"
+import { onAuthStateChanged } from "firebase/auth"
+
 import { auth, db } from "../../../lib/firebase"
 import gameIcon from "@/assets/game.png"
 import profileIcon from "@/assets/profileIcon.png"
