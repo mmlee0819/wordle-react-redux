@@ -1,8 +1,13 @@
+import { useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { doc, getDoc } from "firebase/firestore"
+import { onAuthStateChanged } from "firebase/auth"
 import Image from "next/image"
+import Link from "next/link"
+import { auth, db } from "../../../lib/firebase"
 import gameIcon from "@/assets/game.png"
 import profileIcon from "@/assets/profileIcon.png"
 import rankingIcon from "@/assets/rankingIcon.png"
-import Link from "next/link"
 
 const headerIcons = [
   { path: "profile", name: "profile", src: profileIcon },
@@ -11,6 +16,34 @@ const headerIcons = [
 ]
 
 export default function Header() {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        dispatch({ type: "LOG_OUT" })
+        return
+      }
+      const docRef = doc(db, "users", user.email as string)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        dispatch({
+          type: "HAS_CURRENT_USER",
+          payload: {
+            isAuthenticated: true,
+            email: docSnap.data().email,
+            displayName: docSnap.data().displayName,
+            photoURL: docSnap.data().photoURL,
+            id: docSnap.data().id,
+            point: docSnap.data().point,
+            wordleHistory: docSnap.data().wordleHistory,
+          },
+        })
+      } else {
+        dispatch({ type: "LOG_OUT" })
+      }
+    })
+    return () => unsubscribe()
+  }, [])
   return (
     <header className="xs:h-10 flex px-5 h-16 border-b border-gloomy bg-black">
       <div className="maxMd:text-start xs:text-2.5xl relative w-full justify-center items-center text-center text-3.5xl">
