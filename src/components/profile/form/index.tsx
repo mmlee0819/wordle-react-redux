@@ -1,10 +1,13 @@
 import { useState, useRef } from "react"
-import { doc, getDoc } from "firebase/firestore"
-import { db } from "../../../../lib/firebase"
-import Button from "./button"
+import { doc, getDoc, setDoc } from "firebase/firestore"
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { db, auth } from "../../../../lib/firebase"
+import Button from "../button"
+import axios from "axios"
 
 const continueButtonStyles =
   "mt-4 w-full h-12 text-black bg-white rounded font-semibold select-none"
+const target = "@"
 
 export default function Form() {
   const emailRef = useRef<HTMLInputElement>(null)
@@ -25,7 +28,43 @@ export default function Form() {
       console.log(err)
     }
   }
-
+  const signUp = async (e: React.MouseEvent) => {
+    if (
+      !emailRef.current ||
+      !passwordRef.current ||
+      emailRef.current.value.trim() === "" ||
+      passwordRef.current.value.trim() === ""
+    )
+      return
+    try {
+      e.preventDefault()
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        emailRef.current.value,
+        passwordRef.current.value
+      )
+      const user = userCredential.user
+      const generateAvatar = await axios.get(
+        `https://avatars.dicebear.com/api/bottts/${user.uid}.1.svg`
+      )
+      const bottsAvatar = generateAvatar.config.url
+      const indexOfTarget = emailRef.current.value.indexOf(target)
+      await setDoc(doc(db, "users", emailRef.current.value), {
+        email: user.email,
+        displayName: user.displayName || user?.email?.slice(0, indexOfTarget),
+        photoURL: bottsAvatar,
+        id: user.uid,
+        point: 0,
+        wordleHistory: [],
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        const errorMessage = error.message
+        console.log(errorMessage)
+      }
+    }
+  }
+  const signIn = async (e: React.MouseEvent) => {}
   return (
     <form className="flex flex-col items-start w-full">
       <h1 className="flex self-center mb-4 text-2.5xl">
@@ -62,11 +101,21 @@ export default function Form() {
           />
         </div>
       )}
-      <Button onClick={handleCheckEmail} styles={continueButtonStyles}>
-        {userStatus === "" && "Continue"}
-        {userStatus === "shouldSignIn" && "Log In"}
-        {userStatus === "shouldSignUp" && "Create Account"}
-      </Button>
+      {userStatus === "" && (
+        <Button onClick={handleCheckEmail} styles={continueButtonStyles}>
+          Continue
+        </Button>
+      )}
+      {userStatus === "shouldSignIn" && (
+        <Button onClick={signIn} styles={continueButtonStyles}>
+          Log In
+        </Button>
+      )}
+      {userStatus === "shouldSignUp" && (
+        <Button onClick={signUp} styles={continueButtonStyles}>
+          Create Account
+        </Button>
+      )}
     </form>
   )
 }

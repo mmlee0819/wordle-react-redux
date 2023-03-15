@@ -1,8 +1,8 @@
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth"
 import { db, auth, provider } from "../../../lib/firebase"
 import Form from "@/components/profile/form"
-import Button from "@/components/profile/form/button"
-import Partition from "@/components/profile/form/partition"
+import Button from "@/components/profile/button"
+import Partition from "@/components/profile/partition"
 import Image from "next/dist/client/image"
 
 const googleButtonStyles =
