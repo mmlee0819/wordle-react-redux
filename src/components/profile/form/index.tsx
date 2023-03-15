@@ -67,8 +67,11 @@ export default function Form() {
         return setUserStatus("shouldSignIn")
       if (docSnap.exists() && docSnap.data().account === "google")
         return setUserStatus("shouldSignInWithGoogle")
-    } catch (err) {
-      console.log(err)
+    } catch (error) {
+      if (error instanceof Error) {
+        const errorMessage = error.message
+        console.log(errorMessage)
+      }
     }
   }
   const handleClickGoogle = async (e: React.MouseEvent) => {
