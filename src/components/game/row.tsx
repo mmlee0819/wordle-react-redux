@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "@/store/reducers"
-import { handleGuess } from "@/utils/functions"
+import { handleGuess } from "@/utils/functions/handleGuess"
 import Grid from "./grid"
 
 const gridsArr = ["1", "2", "3", "4", "5"]
