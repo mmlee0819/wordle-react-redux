@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, MouseEvent } from "react"
 import Image from "next/image"
 import { useDispatch } from "react-redux"
 import Button from "../button"
@@ -84,9 +84,9 @@ export default function Form() {
           )}
           {userStatus === "shouldSignInWithThirdParty" && (
             <div className="mx-auto my-5 text-center font-semibold">
-              You already have a third-party account.
+              You already have another third-party account.
               <br />
-              Please click the button below.
+              Please choose another sign-in method.
             </div>
           )}
           <Button
@@ -118,7 +118,9 @@ export default function Form() {
       )}
       {userStatus === "shouldSignIn" && (
         <Button
-          onClick={(e) => signIn(e, emailRef, passwordRef, dispatch)}
+          onClick={async (e) => {
+            await signIn(e, emailRef, passwordRef, dispatch)
+          }}
           styles={continueButtonStyles}
         >
           Log In

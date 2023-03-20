@@ -32,7 +32,7 @@ export default function Row({ id }: { id: number }) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [dispatch, id, stateGuess, stateRow])
+  }, [dispatch, id, stateGuess, stateRow, stateAnswer.currentAnswer])
 
   return (
     <div className="relative grid grid-cols-5 gap-1.5">
