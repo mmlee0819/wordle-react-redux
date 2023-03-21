@@ -1,24 +1,21 @@
-import { useState, useRef } from "react"
+import { useState, useRef, MouseEvent } from "react"
 import Image from "next/image"
-import axios from "axios"
 import { useDispatch } from "react-redux"
-import { doc, getDoc, setDoc } from "firebase/firestore"
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth"
-import { db, auth, provider } from "lib/firebase"
 import Button from "../button"
 import Partition from "./partition"
 import ButtonOnInput from "./buttonOnInput"
+import {
+  handleCheckEmail,
+  handleClickGoogle,
+  signUp,
+  signIn,
+  handleClickGithub,
+} from "@/utils/functions/handleClickAuth"
 
 const continueButtonStyles =
   "mt-4 w-full h-12 text-black bg-white rounded font-semibold select-none"
-const googleButtonStyles =
+const thirdPartyButtonStyles =
   "flex justify-center items-center mt-4 w-full h-12 text-white bg-black rounded border border-white font-semibold select-none gap-2"
-
-const target = "@"
 
 export default function Form() {
   const emailRef = useRef<HTMLInputElement>(null)
@@ -26,134 +23,6 @@ export default function Form() {
   const [userStatus, setUserStatus] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const dispatch = useDispatch()
-
-  const createUser = async (email: string, uid: string, source: string) => {
-    const generateAvatar = await axios.get(
-      `https://avatars.dicebear.com/api/bottts/${uid}.1.svg`
-    )
-    const bottsAvatar = generateAvatar.config.url
-    const indexOfTarget = email?.indexOf(target)
-    const name = email?.slice(0, indexOfTarget)
-    await setDoc(doc(db, "users", email), {
-      account: source,
-      email,
-      displayName: name,
-      photoURL: bottsAvatar,
-      id: uid,
-      point: 0,
-      wordleHistory: [],
-    })
-    dispatch({
-      type: "HAS_CURRENT_USER",
-      payload: {
-        isAuthenticated: true,
-        email,
-        displayName: name,
-        photoURL: bottsAvatar,
-        id: uid,
-        point: 0,
-        wordleHistory: [],
-      },
-    })
-  }
-  const handleCheckEmail = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    if (!emailRef?.current?.value.trim()) return
-    const docRef = doc(db, "users", emailRef.current.value)
-    try {
-      const docSnap = await getDoc(docRef)
-      if (!docSnap.exists()) return setUserStatus("shouldSignUp")
-      if (docSnap.exists() && docSnap.data().account === "firebase")
-        return setUserStatus("shouldSignIn")
-      if (docSnap.exists() && docSnap.data().account === "google")
-        return setUserStatus("shouldSignInWithGoogle")
-    } catch (error) {
-      if (error instanceof Error) {
-        const errorMessage = error.message
-        console.log(errorMessage)
-      }
-    }
-  }
-  const handleClickGoogle = async (e: React.MouseEvent) => {
-    try {
-      e.preventDefault()
-      const result = await signInWithPopup(auth, provider)
-      if (!result) return
-      const { email, uid } = result.user
-      if (typeof email !== "string") return
-      await createUser(email, uid, "google")
-    } catch (error) {
-      if (error instanceof Error) {
-        const errorMessage = error.message
-        console.log({ errorMessage })
-      }
-    }
-  }
-  const signUp = async (e: React.MouseEvent) => {
-    if (
-      !emailRef.current ||
-      !passwordRef.current ||
-      emailRef.current.value.trim() === "" ||
-      passwordRef.current.value.trim() === ""
-    )
-      return
-    try {
-      e.preventDefault()
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        emailRef.current.value,
-        passwordRef.current.value
-      )
-      const { email, uid } = userCredential.user
-      if (typeof email !== "string") return
-      await createUser(email, uid, "firebase")
-    } catch (error) {
-      if (error instanceof Error) {
-        const errorMessage = error.message
-        console.log(errorMessage)
-      }
-    }
-  }
-  const signIn = async (e: React.MouseEvent) => {
-    if (
-      !emailRef.current ||
-      !passwordRef.current ||
-      emailRef.current.value.trim() === "" ||
-      passwordRef.current.value.trim() === ""
-    )
-      return
-    try {
-      e.preventDefault()
-      await signInWithEmailAndPassword(
-        auth,
-        emailRef.current.value,
-        passwordRef.current.value
-      )
-      const docRef = doc(db, "users", emailRef.current.value)
-      const docSnap = await getDoc(docRef)
-      if (docSnap.exists()) {
-        dispatch({
-          type: "HAS_CURRENT_USER",
-          payload: {
-            isAuthenticated: true,
-            email: docSnap.data().email,
-            displayName: docSnap.data().displayName,
-            photoURL: docSnap.data().photoURL,
-            id: docSnap.data().id,
-            point: docSnap.data().point,
-            wordleHistory: docSnap.data().wordleHistory,
-          },
-        })
-      } else {
-        dispatch({ type: "LOG_OUT" })
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        const errorMessage = error.message
-        console.log(errorMessage)
-      }
-    }
-  }
 
   const handleClickEdit = () => setUserStatus("")
   const handleClickShow = () => setShowPassword((prev) => !prev)
@@ -200,24 +69,30 @@ export default function Form() {
           </ButtonOnInput>
         </div>
       )}
-      {(userStatus === "" || userStatus === "shouldSignInWithGoogle") && (
+      {(userStatus === "" || userStatus === "shouldSignInWithThirdParty") && (
         <>
           {userStatus === "" && (
             <>
-              <Button onClick={handleCheckEmail} styles={continueButtonStyles}>
+              <Button
+                onClick={(e) => handleCheckEmail(e, emailRef, setUserStatus)}
+                styles={continueButtonStyles}
+              >
                 Continue
               </Button>
               <Partition />
             </>
           )}
-          {userStatus === "shouldSignInWithGoogle" && (
+          {userStatus === "shouldSignInWithThirdParty" && (
             <div className="mx-auto my-5 text-center font-semibold">
-              You already have a google account.
+              You already have another third-party account.
               <br />
-              Please click the button below.
+              Please choose another sign-in method.
             </div>
           )}
-          <Button onClick={handleClickGoogle} styles={googleButtonStyles}>
+          <Button
+            onClick={(e) => handleClickGoogle(e, dispatch)}
+            styles={thirdPartyButtonStyles}
+          >
             <Image
               src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
               alt="google logo"
@@ -226,15 +101,36 @@ export default function Form() {
             />
             Continue with Google
           </Button>
+          <Button
+            onClick={(e) => handleClickGithub(e, dispatch)}
+            styles={thirdPartyButtonStyles}
+          >
+            <Image
+              className="bg-white rounded-full"
+              src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Github-circle_%28CoreUI_Icons_v1.0.0%29.svg"
+              alt="github logo"
+              width={20}
+              height={20}
+            />
+            Continue with Github
+          </Button>
         </>
       )}
       {userStatus === "shouldSignIn" && (
-        <Button onClick={signIn} styles={continueButtonStyles}>
+        <Button
+          onClick={async (e) => {
+            await signIn(e, emailRef, passwordRef, dispatch)
+          }}
+          styles={continueButtonStyles}
+        >
           Log In
         </Button>
       )}
       {userStatus === "shouldSignUp" && (
-        <Button onClick={signUp} styles={continueButtonStyles}>
+        <Button
+          onClick={(e) => signUp(e, emailRef, passwordRef, dispatch)}
+          styles={continueButtonStyles}
+        >
           Create Account
         </Button>
       )}

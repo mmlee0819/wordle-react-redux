@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "@/store/reducers"
-import { handleGuess } from "@/utils/functions"
+import { handleGuess } from "@/utils/functions/handleGuess"
 import Grid from "./grid"
 
 const gridsArr = ["1", "2", "3", "4", "5"]
@@ -32,7 +32,7 @@ export default function Row({ id }: { id: number }) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [dispatch, id, stateGuess, stateRow])
+  }, [dispatch, id, stateGuess, stateRow, stateAnswer.currentAnswer])
 
   return (
     <div className="relative grid grid-cols-5 gap-1.5">

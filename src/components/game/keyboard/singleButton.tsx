@@ -1,7 +1,7 @@
 import { ReactNode } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "@/store/reducers"
-import { handleGuess } from "@/utils/functions"
+import { handleGuess } from "@/utils/functions/handleGuess"
 
 const mainKeyButtonStyle =
   "max-w-[45px] w-full h-14 rounded bg-keyBg justify-center items-center text-xl text-white font-semibold uppercase select-none"
