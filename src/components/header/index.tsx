@@ -10,16 +10,17 @@ import gameIcon from "@/assets/game.png"
 import profileIcon from "@/assets/profileIcon.png"
 import rankingIcon from "@/assets/rankingIcon.png"
 
-const headerIcons = [
-  { path: "profile", name: "profile", src: profileIcon },
-  { path: "ranking", name: "ranking", src: rankingIcon },
-  { path: "", name: "game", src: gameIcon },
-]
-
 export default function Header() {
   const dispatch = useDispatch()
   const userState = useSelector((state: RootStateType) => state.userReducer)
-  const { point, email } = userState
+  const { point, email, photoURL } = userState
+
+  const headerIcons = [
+    { path: "profile", name: "profile", src: photoURL || profileIcon },
+    { path: "ranking", name: "ranking", src: rankingIcon },
+    { path: "", name: "game", src: gameIcon },
+  ]
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
