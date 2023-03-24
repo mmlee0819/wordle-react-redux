@@ -23,7 +23,8 @@ export const handleGuess = (
   const isEnter = enter.test(currentKey)
   if (!isValidLetter && !isBackSpace && !isEnter) return
 
-  const currentRow = stateRow.currentRow
+  const { point, currentRow } = stateRow
+  const incrementPoint = 10 - (currentRow - 1)
   const guessWordLength = stateGuess[currentRow].length
   const guessWord = stateGuess[currentRow]
     .map((item) => item.letter)
@@ -49,7 +50,10 @@ export const handleGuess = (
     return
   }
   if (guessWordLength >= maxGridsLength && isEnter && guessWord === answer) {
-    dispatch({ type: "IS_BINGO", payload: "bingo" })
+    dispatch({
+      type: "IS_BINGO",
+      payload: { point: point + incrementPoint, status: "bingo" },
+    })
     dispatch({ type: "BINGO_GUESS", payload: currentRow })
     return
   }

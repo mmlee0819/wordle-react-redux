@@ -18,7 +18,12 @@ export default function rowReducer(state = initialState, action: AnyAction) {
       return { ...state, currentRow: action.payload }
     }
     case "IS_BINGO": {
-      return { ...state, currentRow: 7, status: action.payload }
+      return {
+        ...state,
+        currentRow: 7,
+        point: action.payload.point,
+        status: action.payload.status,
+      }
     }
     case "IS_FAIL": {
       return { ...state, currentRow: 7, status: action.payload }
@@ -30,7 +35,7 @@ export default function rowReducer(state = initialState, action: AnyAction) {
       return { ...state, status: action.payload }
     }
     case "BACK_TO_FIRST_ROW": {
-      return initialState
+      return { ...state, currentRow: 1, status: "notSure" }
     }
     default:
       return state
