@@ -33,6 +33,12 @@ export default function userReducer(state = initialState, action: AnyAction) {
         wordleHistory: action.payload.wordleHistory,
       }
     }
+    case "UPDATE_USER_POINTS": {
+      return {
+        ...state,
+        point: action.payload,
+      }
+    }
     case "LOG_OUT": {
       return {
         isAuthenticated: false,

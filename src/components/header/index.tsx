@@ -19,9 +19,7 @@ const headerIcons = [
 export default function Header() {
   const dispatch = useDispatch()
   const userState = useSelector((state: RootStateType) => state.userReducer)
-  const guessState = useSelector((state: RootStateType) => state.rowReducer)
   const userPoint = userState.point
-  const guessPoint = guessState.point
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -49,14 +47,13 @@ export default function Header() {
     })
     return () => unsubscribe()
   }, [dispatch])
+
   return (
     <header className="xs:h-10 flex px-5 h-16 border-b border-gloomy bg-black">
       <div className="maxMd:text-start xs:text-2.5xl relative w-full justify-center items-center text-center text-3.5xl">
         Wordle
         <div className="xs:-mt-[12.5px] absolute flex top-2/4 right-0 -mt-[15px] gap-3">
-          <div className="font-normal text-2xl">
-            {userState.isAuthenticated ? userPoint : guessPoint} pt
-          </div>
+          <div className="xs:text-xl font-normal text-2xl">{userPoint} pt</div>
           {headerIcons.map((item) => (
             <Link href={`/${item.path}`} key={item.name}>
               <Image

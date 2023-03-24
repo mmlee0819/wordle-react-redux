@@ -20,6 +20,7 @@ export function SingleButton({
     (state: RootStateType) => state.guessReducer.guesses
   )
   const stateAnswer = useSelector((state: RootStateType) => state.answerReducer)
+  const stateUser = useSelector((state: RootStateType) => state.userReducer)
 
   const dispatch = useDispatch()
 
@@ -30,6 +31,7 @@ export function SingleButton({
       currentClickKey,
       stateRow,
       stateGuess,
+      stateUser.point,
       dispatch,
       stateAnswer.currentAnswer
     )

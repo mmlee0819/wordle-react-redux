@@ -26,7 +26,13 @@ export default function UserInfo() {
   }
   return (
     <>
-      <Image src={photoURL} alt={displayName} width={120} height={120} />
+      <Image
+        src={photoURL}
+        alt={displayName}
+        width={120}
+        height={120}
+        priority
+      />
       <div>{displayName}</div>
       <Button onClick={logOut} styles={continueButtonStyles}>
         Log out

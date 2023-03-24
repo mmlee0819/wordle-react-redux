@@ -1,6 +1,7 @@
 import { Dispatch } from "redux"
 import { GuessGridType } from "@/store/reducers/guessReducer"
 import { RowStateType } from "@/store/reducers/rowReducer"
+import { UserStateType } from "@/store/reducers/userReducer"
 import {
   validRegex,
   backSpace,
@@ -15,6 +16,7 @@ export const handleGuess = (
   stateGuess: {
     [key: number]: GuessGridType[]
   },
+  userPoint: number,
   dispatch: Dispatch,
   answer: string
 ) => {
@@ -23,7 +25,7 @@ export const handleGuess = (
   const isEnter = enter.test(currentKey)
   if (!isValidLetter && !isBackSpace && !isEnter) return
 
-  const { point, currentRow } = stateRow
+  const { currentRow } = stateRow
   const incrementPoint = 10 - (currentRow - 1)
   const guessWordLength = stateGuess[currentRow].length
   const guessWord = stateGuess[currentRow]
@@ -52,7 +54,11 @@ export const handleGuess = (
   if (guessWordLength >= maxGridsLength && isEnter && guessWord === answer) {
     dispatch({
       type: "IS_BINGO",
-      payload: { point: point + incrementPoint, status: "bingo" },
+      payload: "bingo",
+    })
+    dispatch({
+      type: "UPDATE_USER_POINTS",
+      payload: userPoint + incrementPoint,
     })
     dispatch({ type: "BINGO_GUESS", payload: currentRow })
     return

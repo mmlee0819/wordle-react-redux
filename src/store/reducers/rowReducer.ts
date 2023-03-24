@@ -2,13 +2,11 @@ import { AnyAction } from "redux"
 
 export interface RowStateType {
   currentRow: number
-  point: number
   status: string
 }
 
 const initialState = {
   currentRow: 1,
-  point: 0,
   status: "notSure",
 }
 
@@ -21,8 +19,7 @@ export default function rowReducer(state = initialState, action: AnyAction) {
       return {
         ...state,
         currentRow: 7,
-        point: action.payload.point,
-        status: action.payload.status,
+        status: action.payload,
       }
     }
     case "IS_FAIL": {

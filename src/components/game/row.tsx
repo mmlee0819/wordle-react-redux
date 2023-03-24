@@ -12,6 +12,7 @@ export default function Row({ id }: { id: number }) {
     (state: RootStateType) => state.guessReducer.guesses
   )
   const stateAnswer = useSelector((state: RootStateType) => state.answerReducer)
+  const stateUser = useSelector((state: RootStateType) => state.userReducer)
 
   const dispatch = useDispatch()
 
@@ -23,6 +24,7 @@ export default function Row({ id }: { id: number }) {
         currentPressKey,
         stateRow,
         stateGuess,
+        stateUser.point,
         dispatch,
         stateAnswer.currentAnswer
       )
@@ -32,7 +34,14 @@ export default function Row({ id }: { id: number }) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [dispatch, id, stateGuess, stateRow, stateAnswer.currentAnswer])
+  }, [
+    dispatch,
+    id,
+    stateGuess,
+    stateRow,
+    stateAnswer.currentAnswer,
+    stateUser.point,
+  ])
 
   return (
     <div className="relative grid grid-cols-5 gap-1.5">
