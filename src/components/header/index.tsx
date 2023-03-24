@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "@/store/reducers"
 import Image from "next/image"
 import Link from "next/link"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth, db } from "lib/firebase"
 import gameIcon from "@/assets/game.png"
@@ -19,7 +19,7 @@ const headerIcons = [
 export default function Header() {
   const dispatch = useDispatch()
   const userState = useSelector((state: RootStateType) => state.userReducer)
-  const userPoint = userState.point
+  const { point, email } = userState
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -48,12 +48,29 @@ export default function Header() {
     return () => unsubscribe()
   }, [dispatch])
 
+  useEffect(() => {
+    if (email === "") return
+    const pointRef = doc(db, "users", email)
+    const updatePoints = async () => {
+      try {
+        await updateDoc(pointRef, {
+          point,
+        })
+      } catch (error) {
+        if (error instanceof Error) {
+          const errorMessage = error.message
+          console.log({ errorMessage })
+        }
+      }
+    }
+    updatePoints()
+  }, [email, point])
   return (
     <header className="xs:h-10 flex px-5 h-16 border-b border-gloomy bg-black">
       <div className="maxMd:text-start xs:text-2.5xl relative w-full justify-center items-center text-center text-3.5xl">
         Wordle
         <div className="xs:-mt-[12.5px] absolute flex top-2/4 right-0 -mt-[15px] gap-3">
-          <div className="xs:text-xl font-normal text-2xl">{userPoint} pt</div>
+          <div className="xs:text-xl font-normal text-2xl">{point} pt</div>
           {headerIcons.map((item) => (
             <Link href={`/${item.path}`} key={item.name}>
               <Image
